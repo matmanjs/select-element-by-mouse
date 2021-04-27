@@ -159,10 +159,10 @@ export class SelectElement {
       return;
     }
 
-    this.markLeft = this.buildMark('rua-assert-mark-left');
-    this.markRight = this.buildMark('rua-assert-mark-right');
-    this.markTop = this.buildMark('rua-assert-mark-top');
-    this.markBottom = this.buildMark('rua-assert-mark-bottom');
+    this.markLeft = this.buildMark('sebm-mark-left');
+    this.markRight = this.buildMark('sebm-mark-right');
+    this.markTop = this.buildMark('sebm-mark-top');
+    this.markBottom = this.buildMark('sebm-mark-bottom');
     this.surround(0, 0, 0, 0);
   }
 
@@ -185,7 +185,7 @@ export class SelectElement {
     if (!el) {
       return;
     }
-    if (el.id?.includes('rua-assert-mark')) {
+    if (el.id?.includes('sebm-mark')) {
       this.onBlur();
     }
   };
