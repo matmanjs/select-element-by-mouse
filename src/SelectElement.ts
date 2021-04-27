@@ -89,11 +89,15 @@ export class SelectElement {
   private onMouseMove = (e: MouseEvent) => {
     e.stopPropagation();
 
-    this.hideEl();
-    this.showEl();
-
+    console.log('--onMouseMove 2--');
     const { clientX, clientY } = e;
+
+    this.hideEl();
+
     const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
+    this.showEl();
+    console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
+    // console.log('--clientX, clientY, targetElement--',clientX, clientY, targetElement)
 
     if (!targetElement) {
       return;
@@ -109,17 +113,25 @@ export class SelectElement {
     }
 
     const frame = getFrame(this.mouseMoveEl);
+
     // 如果为iframe,或者父级有frame, 蒙层绕开
     if (frame) {
+      console.log('===当前是frame===');
       const { top, left, width, height } = frame.getBoundingClientRect();
 
       this.surround(left, top, width, height);
+
       return;
     }
+
+    console.log('高亮当前的元素！');
+
     // 高亮当前元素
     const originColor = targetElement.style.backgroundColor;
     this.mouseMoveElBackColor = isInnerColor(originColor) ? '' : originColor;
     targetElement.style.backgroundColor = hoverColor;
+
+    // 更新当前鼠标移动上去的元素
     this.mouseMoveEl = targetElement;
   };
 
@@ -259,9 +271,12 @@ function getFrame(el?: HTMLElement) {
   if (!el) {
     return null;
   }
+
   if (isIframe(el)) {
     return el;
   }
+
   const iframe = findNode(el as any, isIframe);
+
   return iframe as HTMLElement;
 }
