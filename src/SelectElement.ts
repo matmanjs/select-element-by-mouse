@@ -28,7 +28,7 @@ export class SelectElement {
   /**
    * 初始化
    */
-  async init() {
+  init() {
     this.bind();
   }
 
