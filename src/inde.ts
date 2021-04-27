@@ -1,3 +1,5 @@
-const a = 'hello world';
+import { SelectElement } from "./SelectElement";
 
-export default a;
+export {
+  SelectElement
+};
