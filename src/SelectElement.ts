@@ -169,31 +169,45 @@ export class SelectElement {
     this.mouseMoveEl = targetElement;
 
     // 广播事件
-    this.emit(EVENT_NAME.MOUSE_MOVE,this.mouseMoveEl);
+    this.emit(EVENT_NAME.MOUSE_MOVE, this.mouseMoveEl);
   };
 
   private onClick = (e: MouseEvent) => {
     e.stopPropagation();
-    const { clientX, clientY } = e;
-    this.hideEl();
-    const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
-    this.showEl();
-    if (targetElement) {
-      const color =
-        (targetElement === this.mouseMoveEl && !isInnerColor(this.mouseMoveElBackColor) && this.mouseMoveElBackColor) ||
-        targetElement.style.backgroundColor;
-      targetElement.style.backgroundColor = clickColor;
-      setTimeout(() => {
-        targetElement.style.backgroundColor = isInnerColor(color) ? '' : color;
-      }, 1000);
 
-      // const customHandler = this.customElementHandlers.get(this.type);
-      // if (customHandler) {
-      //   customHandler?.(targetElement);
-      // } else {
-      //   throw new Error(`[element assert]: ${this.type} 找不到elementHandler`);
-      // }
+    // 需要将蒙层隐藏，否则调用 document.elementFromPoint 时会导致选中蒙层元素而不是实际的目标元素
+    this.hideEl();
+
+    // 获取当前鼠标的坐标
+    const { clientX, clientY } = e;
+
+    // 通过鼠标当前的坐标，获得当前鼠标所在位置最上层的元素
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/Document/elementFromPoint
+    const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
+
+    // console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
+
+    // 恢复遮盖
+    this.showEl();
+
+    // 若无法找到目标元素则不进行后续处理
+    if (!targetElement) {
+      return;
     }
+
+    // 记录一下改变之前的背景色值
+    const oldBackColor =
+      (targetElement === this.mouseMoveEl && !isInnerColor(this.mouseMoveElBackColor) && this.mouseMoveElBackColor) ||
+      targetElement.style.backgroundColor;
+    targetElement.style.backgroundColor = clickColor;
+
+    // 点击变色之后，1s 之后再恢复
+    setTimeout(() => {
+      targetElement.style.backgroundColor = isInnerColor(oldBackColor) ? '' : oldBackColor;
+    }, 1000);
+
+    // 广播事件
+    this.emit(EVENT_NAME.CLICK, targetElement);
   };
 
   private initEl() {
