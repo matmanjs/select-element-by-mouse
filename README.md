@@ -2,6 +2,8 @@
 
 通过鼠标选择 html 上的元素。
 
+![](./demo/demo.gif)
+
 ## 使用说明
 
 安装：
@@ -49,7 +51,7 @@ setTimeout(() => {
 }, 5000);
 ```
 
-![](./demo/demo.gif)
+
 
 ## API
 

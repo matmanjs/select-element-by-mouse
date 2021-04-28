@@ -1,6 +1,6 @@
 {
   "name": "select-element-by-mouse",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Select html element by mouse",
   "main": "lib/index.js",
   "scripts": {
