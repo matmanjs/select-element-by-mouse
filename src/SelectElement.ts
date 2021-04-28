@@ -12,6 +12,8 @@ function preventDefault(e: Event) {
 }
 
 export const EVENT_NAME = {
+  INIT: 'INIT',
+  DESTROY: 'DESTROY',
   MOUSE_MOVE: 'MOUSE_MOVE',
   BLUR: 'BLUR',
   CLICK: 'CLICK'
@@ -36,6 +38,9 @@ export class SelectElement {
    */
   public init() {
     this.bind();
+
+    // 广播事件
+    this.emit(EVENT_NAME.INIT);
   }
 
   /**
@@ -43,52 +48,9 @@ export class SelectElement {
    */
   public destroy() {
     this.unBind();
-  }
 
-  /**
-   * 绑定事件，激活选择
-   */
-  public bind() {
-    this.initEl();
-    this.unBind();
-
-    const { masks } = this;
-    masks.forEach((item) => {
-      item?.addEventListener('click', this.onClick);
-      item?.addEventListener('mousemove', this.onMouseMove);
-    });
-
-    window.addEventListener('keydown', preventDefault);
-    window.addEventListener('wheel', preventDefault, { passive: false });
-    window.addEventListener('blur', this.onBlur);
-    window.addEventListener('mouseout', this.onMouseOut);
-
-    this.showEl();
-  }
-
-  /**
-   * 解除事件
-   */
-  public unBind() {
-    const { masks } = this;
-
-    masks.forEach((item) => {
-      item?.removeEventListener('click', this.onClick);
-      item?.removeEventListener('mousemove', this.onMouseMove);
-    });
-
-    window.removeEventListener('keydown', preventDefault);
-    window.removeEventListener('wheel', preventDefault);
-    window.removeEventListener('blur', this.onBlur);
-    window.removeEventListener('mouseout', this.onMouseOut);
-
-    this.hideEl();
-
-    if (this.mouseMoveEl) {
-      this.mouseMoveEl.style.backgroundColor = this.mouseMoveElBackColor || '';
-    }
-    this.mouseMoveEl = undefined;
-    this.mouseMoveElBackColor = undefined;
+    // 广播事件
+    this.emit(EVENT_NAME.DESTROY);
   }
 
   /**
@@ -118,6 +80,52 @@ export class SelectElement {
         callFn.call(this, el);
       });
     }
+  }
+
+  /**
+   * 绑定事件，激活选择
+   */
+  private bind() {
+    this.initEl();
+    this.unBind();
+
+    const { masks } = this;
+    masks.forEach((item) => {
+      item?.addEventListener('click', this.onClick);
+      item?.addEventListener('mousemove', this.onMouseMove);
+    });
+
+    window.addEventListener('keydown', preventDefault);
+    window.addEventListener('wheel', preventDefault, { passive: false });
+    window.addEventListener('blur', this.onBlur);
+    window.addEventListener('mouseout', this.onMouseOut);
+
+    this.showEl();
+  }
+
+  /**
+   * 解除事件
+   */
+  private unBind() {
+    const { masks } = this;
+
+    masks.forEach((item) => {
+      item?.removeEventListener('click', this.onClick);
+      item?.removeEventListener('mousemove', this.onMouseMove);
+    });
+
+    window.removeEventListener('keydown', preventDefault);
+    window.removeEventListener('wheel', preventDefault);
+    window.removeEventListener('blur', this.onBlur);
+    window.removeEventListener('mouseout', this.onMouseOut);
+
+    this.hideEl();
+
+    if (this.mouseMoveEl) {
+      this.mouseMoveEl.style.backgroundColor = this.mouseMoveElBackColor || '';
+    }
+    this.mouseMoveEl = undefined;
+    this.mouseMoveElBackColor = undefined;
   }
 
   private onMouseMove = (e: MouseEvent) => {
