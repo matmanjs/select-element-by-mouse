@@ -49,6 +49,8 @@ setTimeout(() => {
 }, 5000);
 ```
 
+![](./demo/demo.gif)
+
 ## API
 
 ### SelectElement
