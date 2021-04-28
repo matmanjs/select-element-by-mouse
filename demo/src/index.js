@@ -1,7 +1,5 @@
 const { EVENT_NAME, SelectElement } = require('../../');
 
-console.log('hello2!');
-
 const selectElement = new SelectElement();
 
 selectElement.on(EVENT_NAME.MOUSE_MOVE, (el) => {
@@ -16,4 +14,10 @@ selectElement.on(EVENT_NAME.BLUR, () => {
   console.log('--BLUR--');
 });
 
+// 初始化
 selectElement.init();
+
+setTimeout(() => {
+  // 销毁
+  selectElement.destroy();
+}, 5000);

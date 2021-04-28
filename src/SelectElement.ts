@@ -39,6 +39,13 @@ export class SelectElement {
   }
 
   /**
+   * 销毁
+   */
+  public destroy() {
+    this.unBind();
+  }
+
+  /**
    * 绑定事件，激活选择
    */
   public bind() {
