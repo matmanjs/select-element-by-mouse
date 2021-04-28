@@ -1,5 +1,6 @@
-import { SelectElement } from "./SelectElement";
+import { EVENT_NAME, SelectElement } from "./SelectElement";
 
 export {
-  SelectElement
+  SelectElement,
+  EVENT_NAME
 };

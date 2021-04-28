@@ -11,6 +11,11 @@ function preventDefault(e: Event) {
   e.preventDefault();
 }
 
+export const EVENT_NAME = {
+  MOUSE_MOVE: 'MOUSE_MOVE',
+  CLICK: 'CLICK'
+};
+
 export class SelectElement {
   private markLeft?: HTMLDivElement;
   private markRight?: HTMLDivElement;
@@ -23,19 +28,19 @@ export class SelectElement {
     return [this.markTop, this.markLeft, this.markBottom, this.markRight].filter(Boolean) as HTMLElement[];
   }
 
-  private customElementHandlers = new Map<string, (el: HTMLElement) => any>();
+  private customEventHandlers = new Map<string, ((el: HTMLElement) => any)[]>();
 
   /**
    * 初始化
    */
-  init() {
+  public init() {
     this.bind();
   }
 
   /**
    * 绑定事件，激活选择
    */
-  bind() {
+  public bind() {
     this.initEl();
     this.unBind();
 
@@ -56,7 +61,7 @@ export class SelectElement {
   /**
    * 解除事件
    */
-  unBind() {
+  public unBind() {
     const { masks } = this;
 
     masks.forEach((item) => {
@@ -78,12 +83,33 @@ export class SelectElement {
     this.mouseMoveElBackColor = undefined;
   }
 
-  registerElementHandler(key: string, handler: (el: HTMLElement) => any) {
-    if (this.customElementHandlers.has(key)) {
-      return;
-    }
+  /**
+   * 注册一个指定名字的事件，支持多次注册
+   * @param eventName
+   * @param handler
+   */
+  public on(eventName: string, handler: (el: HTMLElement) => any) {
+    const handlerList = this.customEventHandlers.get(eventName) || [];
 
-    this.customElementHandlers.set(key, handler);
+    handlerList.push(handler);
+
+    this.customEventHandlers.set(eventName, handlerList);
+  }
+
+  /**
+   * 触发一个指定名字的事件
+   * @param eventName
+   * @param el
+   */
+  public emit(eventName: string, el: HTMLElement) {
+    const handlerList = this.customEventHandlers.get(eventName);
+
+    // 注意可能有多个回调，依次执行
+    if (handlerList && handlerList.length) {
+      handlerList.forEach((callFn) => {
+        callFn.call(this, el);
+      });
+    }
   }
 
   private onMouseMove = (e: MouseEvent) => {
@@ -99,7 +125,7 @@ export class SelectElement {
     // https://developer.mozilla.org/zh-CN/docs/Web/API/Document/elementFromPoint
     const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
 
-    console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
+    // console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
 
     // 恢复遮盖
     this.showEl();
@@ -141,6 +167,9 @@ export class SelectElement {
 
     // 更新当前鼠标移动上去的元素
     this.mouseMoveEl = targetElement;
+
+    // 广播事件
+    this.emit(EVENT_NAME.MOUSE_MOVE,this.mouseMoveEl);
   };
 
   private onClick = (e: MouseEvent) => {
