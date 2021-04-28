@@ -13,6 +13,7 @@ function preventDefault(e: Event) {
 
 export const EVENT_NAME = {
   MOUSE_MOVE: 'MOUSE_MOVE',
+  BLUR: 'BLUR',
   CLICK: 'CLICK'
 };
 
@@ -28,7 +29,7 @@ export class SelectElement {
     return [this.markTop, this.markLeft, this.markBottom, this.markRight].filter(Boolean) as HTMLElement[];
   }
 
-  private customEventHandlers = new Map<string, ((el: HTMLElement) => any)[]>();
+  private customEventHandlers = new Map<string, ((el?: HTMLElement) => any)[]>();
 
   /**
    * 初始化
@@ -88,7 +89,7 @@ export class SelectElement {
    * @param eventName
    * @param handler
    */
-  public on(eventName: string, handler: (el: HTMLElement) => any) {
+  public on(eventName: string, handler: (el?: HTMLElement) => any) {
     const handlerList = this.customEventHandlers.get(eventName) || [];
 
     handlerList.push(handler);
@@ -101,7 +102,7 @@ export class SelectElement {
    * @param eventName
    * @param el
    */
-  public emit(eventName: string, el: HTMLElement) {
+  public emit(eventName: string, el?: HTMLElement) {
     const handlerList = this.customEventHandlers.get(eventName);
 
     // 注意可能有多个回调，依次执行
@@ -226,12 +227,14 @@ export class SelectElement {
     this.markRight = this.buildMark('sebm-mark-right');
     this.markTop = this.buildMark('sebm-mark-top');
     this.markBottom = this.buildMark('sebm-mark-bottom');
+
     this.surround(0, 0, 0, 0);
   }
 
   private buildMark(id: string) {
     const el = document.createElement('div');
     document.body.appendChild(el);
+
     el.id = id;
     el.style.backgroundColor = 'transparent';
     el.style.position = 'fixed';
@@ -240,6 +243,7 @@ export class SelectElement {
     el.style.width = '100%';
     el.style.height = '100%';
     el.style.zIndex = '999999999';
+
     return el;
   }
 
@@ -248,6 +252,7 @@ export class SelectElement {
     if (!el) {
       return;
     }
+
     if (el.id?.includes('sebm-mark')) {
       this.onBlur();
     }
@@ -257,9 +262,13 @@ export class SelectElement {
     if (!this.mouseMoveEl) {
       return;
     }
+
     this.mouseMoveEl.style.backgroundColor = this.mouseMoveElBackColor || '';
     this.mouseMoveElBackColor = undefined;
     this.mouseMoveEl = undefined;
+
+    // 广播事件
+    this.emit(EVENT_NAME.BLUR);
   };
 
   /*

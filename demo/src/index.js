@@ -12,4 +12,8 @@ selectElement.on(EVENT_NAME.CLICK, (el) => {
   console.log('--click--', el);
 });
 
+selectElement.on(EVENT_NAME.BLUR, () => {
+  console.log('--BLUR--');
+});
+
 selectElement.init();
