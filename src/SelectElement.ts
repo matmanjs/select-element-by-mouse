@@ -89,20 +89,27 @@ export class SelectElement {
   private onMouseMove = (e: MouseEvent) => {
     e.stopPropagation();
 
-    console.log('--onMouseMove 2--');
-    const { clientX, clientY } = e;
-
+    // 需要将蒙层隐藏，否则调用 document.elementFromPoint 时会导致选中蒙层元素而不是实际的目标元素
     this.hideEl();
 
-    const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
-    this.showEl();
-    console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
-    // console.log('--clientX, clientY, targetElement--',clientX, clientY, targetElement)
+    // 获取当前鼠标的坐标
+    const { clientX, clientY } = e;
 
+    // 通过鼠标当前的坐标，获得当前鼠标所在位置最上层的元素
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/Document/elementFromPoint
+    const targetElement = document.elementFromPoint(clientX, clientY) as HTMLElement;
+
+    console.log('--onMouseMove clientX, clientY, targetElement--', clientX, clientY, targetElement);
+
+    // 恢复遮盖
+    this.showEl();
+
+    // 若无法找到目标元素则不进行后续处理
     if (!targetElement) {
       return;
     }
 
+    // 若当前鼠标指向的元素与上一次一致，也不再进行后续处理
     if (targetElement === this.mouseMoveEl) {
       return;
     }
@@ -112,11 +119,14 @@ export class SelectElement {
       this.mouseMoveEl.style.backgroundColor = this.mouseMoveElBackColor || '';
     }
 
+    // 通过指定元素，找到其或其祖先元素为 frame 的那个元素
     const frame = getFrame(this.mouseMoveEl);
 
-    // 如果为iframe,或者父级有frame, 蒙层绕开
+    // 如果为iframe, 或者父级有frame, 蒙层绕开
     if (frame) {
       console.log('===当前是frame===');
+      // 获得元素的大小及其相对于视口的位置
+      // https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect
       const { top, left, width, height } = frame.getBoundingClientRect();
 
       this.surround(left, top, width, height);
@@ -124,9 +134,7 @@ export class SelectElement {
       return;
     }
 
-    console.log('高亮当前的元素！');
-
-    // 高亮当前元素
+    // 高亮当前元素，注意要存储高亮之前的背景色，以便后续还原
     const originColor = targetElement.style.backgroundColor;
     this.mouseMoveElBackColor = isInnerColor(originColor) ? '' : originColor;
     targetElement.style.backgroundColor = hoverColor;
@@ -267,6 +275,10 @@ function isIframe(el: HTMLElement) {
   return el?.tagName?.toLowerCase() === 'iframe';
 }
 
+/**
+ * 通过指定元素，找到其或其祖先元素为 frame 的那个元素
+ * @param el
+ */
 function getFrame(el?: HTMLElement) {
   if (!el) {
     return null;
